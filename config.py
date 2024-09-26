@@ -36,3 +36,26 @@ models = {
         'data_path': '/mnt/datawaha/hyex/msn/GWPM/DATA_PROCESSED/MSWEP_V300',
     }
 }
+
+variables = {
+    'Temp': {
+        'name': 'Temperature',
+        'units': 'K',  # Kelvin
+        'description': 'Air temperature at 2 meters above ground',
+    },
+    'P': {
+        'name': 'Precipitation',
+        'units': 'mm',
+        'description': 'Total precipitation accumulation',
+    },
+    'RelHum': {
+        'name': 'Relative Humidity',
+        'units': '%',
+        'description': 'Relative humidity at 2 meters above ground',
+    },
+    'wind': {
+        'name': 'Wind Speed',
+        'units': 'm/s',
+        'description': 'Wind speed at 10 meters above ground',
+    }
+}
