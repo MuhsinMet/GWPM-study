@@ -13,27 +13,36 @@ config = {
 models = {
     'GEFS': {
         'predictors': ['Temp', 'P', 'RelHum', 'wind'],
-        'data_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/GEFS/',
+        'data_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/GEFS',
+        'file_path_template': '{base_path}/{parameter}/{date_time}/{ensemble}/Daily/{file_name}.nc',
+        'ensemble_format': '01'  # Example for accessing the 1st ensemble member
     },
     'ICON': {
         'predictors': ['Temp', 'P', 'RelHum', 'wind'],
         'data_path': '/mnt/datawaha/hyex/becke/DATA_PROCESSED/ICON',
+        'file_path_template': '{base_path}/{parameter}/{date_time}/Daily/{file_name}.nc'
     },
     'ECMWF_IFS': {
         'predictors': ['Temp', 'P', 'RelHum', 'wind'],
         'data_path': '/mnt/datawaha/hyex/becke/DATA_PROCESSED/ECMWF_IFS_open_ensemble_forecasts',
+        'file_path_template': '{base_path}/{parameter}/{date_time}/{ensemble}/Daily/{file_name}.nc',
+        'ensemble_format': '001'  # Example for accessing the 1st ensemble member
     },
     'ECMWF_AIFS': {
-        'predictors': ['Temp', 'P',  'wind'],
+        'predictors': ['Temp', 'P', 'wind'],
         'data_path': '/mnt/datawaha/hyex/becke/DATA_PROCESSED/ECMWF_AIFS_open_ensemble_forecasts',
+        'file_path_template': '{base_path}/{parameter}/{date_time}/{ensemble}/Daily/{file_name}.nc',
+        'ensemble_format': '001'  # Example for accessing the 1st ensemble member
     },
     'ERA5': {
         'predictors': ['Temp', 'RelHum', 'wind'],
         'data_path': '/mnt/datawaha/hyex/becke/DATA_PROCESSED/ERA5_HRES',
+        'file_path_template': '{base_path}/{parameter}/Daily/{file_name}.nc'
     },
     'MSWEP': {
         'predictors': ['P'],
         'data_path': '/mnt/datawaha/hyex/msn/GWPM/DATA_PROCESSED/MSWEP_V300',
+        'file_path_template': '{base_path}/{parameter}/Daily/{file_name}.nc'
     }
 }
 
