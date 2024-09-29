@@ -18,7 +18,7 @@ models = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/GEFS/{parameter}/20240816_00/01/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation',
+            'P': 'precipitation_amount',
             'RelHum': 'relative_humidity',
             'wind': 'wind_speed'
         }
@@ -29,7 +29,7 @@ models = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ICON/{parameter}/20240816_00/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation',
+            'P': 'precipitation_amount',
             'RelHum': 'relative_humidity',
             'wind': 'wind_speed'
         }
@@ -40,7 +40,7 @@ models = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_IFS_open_ensemble_forecasts/{parameter}/20240816_00/001/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation',
+            'P': 'precipitation_amount',
             'RelHum': 'relative_humidity',
             'wind': 'wind_speed'
         }
@@ -51,7 +51,7 @@ models = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_AIFS_open_ensemble_forecasts/{parameter}/20240816_00/001/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation',
+            'P': 'precipitation_amount',
             'wind': 'wind_speed'
         }
     }
@@ -64,7 +64,7 @@ reference_data = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ERA5_HRES/{parameter}/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation',
+            'P': 'precipitation_amount',
             'RelHum': 'relative_humidity',
             'wind': 'wind_speed'
         }
@@ -83,20 +83,24 @@ variables = {
         'name': 'Temperature',
         'units': 'K',  # Kelvin
         'description': 'Air temperature at 2 meters above ground',
+        'reference_dataset': 'ERA5'  # Reference dataset for temperature
     },
     'P': {
         'name': 'Precipitation',
-        'units': 'mm/d',
+        'units': 'mm',
         'description': 'Total precipitation accumulation',
+        'reference_dataset': 'MSWEP'  # Reference dataset for precipitation
     },
     'RelHum': {
         'name': 'Relative Humidity',
         'units': '%',
         'description': 'Relative humidity at 2 meters above ground',
+        'reference_dataset': 'ERA5'  # Reference dataset for relative humidity
     },
     'wind': {
         'name': 'Wind Speed',
         'units': 'm/s',
         'description': 'Wind speed at 10 meters above ground',
+        'reference_dataset': 'ERA5'  # Reference dataset for wind speed
     }
 }
