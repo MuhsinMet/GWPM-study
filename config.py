@@ -18,7 +18,7 @@ models = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/GEFS/{parameter}/20240816_00/01/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation_amount',
+            'P': 'precipitation',
             'RelHum': 'relative_humidity',
             'wind': 'wind_speed'
         }
@@ -29,7 +29,7 @@ models = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ICON/{parameter}/20240816_00/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation_amount',
+            'P': 'precipitation',
             'RelHum': 'relative_humidity',
             'wind': 'wind_speed'
         }
@@ -40,7 +40,7 @@ models = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_IFS_open_ensemble_forecasts/{parameter}/20240816_00/001/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation_amount',
+            'P': 'precipitation',
             'RelHum': 'relative_humidity',
             'wind': 'wind_speed'
         }
@@ -51,7 +51,7 @@ models = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_AIFS_open_ensemble_forecasts/{parameter}/20240816_00/001/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation_amount',
+            'P': 'precipitation',
             'wind': 'wind_speed'
         }
     }
@@ -64,7 +64,7 @@ reference_data = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ERA5_HRES/{parameter}/Daily/2024230.nc',
         'variable_names': {
             'Temp': 'air_temperature',
-            'P': 'precipitation_amount',
+            'P': 'precipitation',
             'RelHum': 'relative_humidity',
             'wind': 'wind_speed'
         }
@@ -86,7 +86,7 @@ variables = {
     },
     'P': {
         'name': 'Precipitation',
-        'units': 'mm',
+        'units': 'mm/d',
         'description': 'Total precipitation accumulation',
     },
     'RelHum': {
