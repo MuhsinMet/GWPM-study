@@ -7,34 +7,53 @@ config = {
     'dir_data_raw': '/mnt/datawaha/hyex/msn/GWPM/DATA_RAW',
     'dir_output': '/mnt/datawaha/hyex/msn/GWPM/OUTPUT',
     'dir_temp': '/tmp',
-    'parameters': ['Temp', 'P', 'RelHum', 'wind'],
-    'forecast_dates': ['20240816_00'],  # This date can be changed as needed
+    'parameters': ['Temp', 'P', 'RelHum', 'wind'],  # List of parameters that can be analyzed
+    'forecast_dates': ['20240816_00'],  # This date can be adjusted as needed
 }
 
 models = {
     'GEFS': {
         'predictors': ['Temp', 'P', 'RelHum', 'wind'],
         'data_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/GEFS',
-        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/GEFS/Temp/20240816_00/01/Daily/2024230.nc',
-        'variable_name': 'air_temperature'
+        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/GEFS/{parameter}/20240816_00/01/Daily/2024230.nc',
+        'variable_names': {
+            'Temp': 'air_temperature',
+            'P': 'precipitation_amount',
+            'RelHum': 'relative_humidity',
+            'wind': 'wind_speed'
+        }
     },
     'ICON': {
         'predictors': ['Temp', 'P', 'RelHum', 'wind'],
         'data_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ICON',
-        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ICON/Temp/20240816_00/Daily/2024230.nc',
-        'variable_name': 'air_temperature'
+        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ICON/{parameter}/20240816_00/Daily/2024230.nc',
+        'variable_names': {
+            'Temp': 'air_temperature',
+            'P': 'precipitation_amount',
+            'RelHum': 'relative_humidity',
+            'wind': 'wind_speed'
+        }
     },
     'ECMWF_IFS': {
         'predictors': ['Temp', 'P', 'RelHum', 'wind'],
         'data_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_IFS_open_ensemble_forecasts',
-        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_IFS_open_ensemble_forecasts/Temp/20240816_00/001/Daily/2024230.nc',
-        'variable_name': 'air_temperature'
+        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_IFS_open_ensemble_forecasts/{parameter}/20240816_00/001/Daily/2024230.nc',
+        'variable_names': {
+            'Temp': 'air_temperature',
+            'P': 'precipitation_amount',
+            'RelHum': 'relative_humidity',
+            'wind': 'wind_speed'
+        }
     },
     'ECMWF_AIFS': {
         'predictors': ['Temp', 'P', 'wind'],
         'data_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_AIFS_open_ensemble_forecasts',
-        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_AIFS_open_ensemble_forecasts/Temp/20240816_00/001/Daily/2024230.nc',
-        'variable_name': 'air_temperature'
+        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ECMWF_AIFS_open_ensemble_forecasts/{parameter}/20240816_00/001/Daily/2024230.nc',
+        'variable_names': {
+            'Temp': 'air_temperature',
+            'P': 'precipitation_amount',
+            'wind': 'wind_speed'
+        }
     }
 }
 
@@ -42,13 +61,20 @@ models = {
 reference_data = {
     'ERA5': {
         'data_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ERA5_HRES',
-        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ERA5_HRES/Temp/Daily/2024230.nc',
-        'variable_name': 'air_temperature'
+        'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ERA5_HRES/{parameter}/Daily/2024230.nc',
+        'variable_names': {
+            'Temp': 'air_temperature',
+            'P': 'precipitation_amount',
+            'RelHum': 'relative_humidity',
+            'wind': 'wind_speed'
+        }
     },
     'MSWEP': {
         'data_path': '/mnt/datawaha/hyex/msn/GWPM/DATA_PROCESSED/MSWEP_V300',
-        'file_path': '/mnt/datawaha/hyex/msn/GWPM/DATA_PROCESSED/MSWEP_V300/P/Daily/2024230.nc',
-        'variable_name': 'precipitation'
+        'file_path': '/mnt/datawaha/hyex/msn/GWPM/DATA_PROCESSED/MSWEP_V300/{parameter}/Daily/2024230.nc',
+        'variable_names': {
+            'P': 'precipitation'
+        }
     }
 }
 
