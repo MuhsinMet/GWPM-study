@@ -7,7 +7,7 @@ from scipy.stats import pearsonr
 
 # User inputs
 start_date_str = '20240816'  # Start date
-end_date_str = '20240819'    # End date
+end_date_str = '20240915'    # End date
 param = 'Temp'  # Set this to the parameter you want to analyze ('Temp', 'P', 'RelHum', 'Wind')
 
 # Convert start and end dates to datetime objects
