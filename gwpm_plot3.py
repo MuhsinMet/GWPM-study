@@ -1,11 +1,11 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from config import models, start_date_str, end_date_str, param, reference_choice  # Import from config
+from config import models, start_date_str, end_date_str, param, reference_choice, variables  # Import variables explicitly
 import subprocess
 
 # Load the saved data
-data_file = f"forecast_analysis_{param}_{start_date_str}_to_{end_date_str}.npz"
+data_file = f"forecast_analysis_{param}_{reference_choice}_{start_date_str}_{end_date_str}.npz"
 
 if not os.path.exists(data_file):
     print(f"Data file {data_file} not found. Running calculation script...")
@@ -64,9 +64,10 @@ else:
     y_min, y_max = 0, 1  # Default range if no valid values
 
 # Customize RMSE plot
+units = variables[param]['units']  # Retrieve units for the parameter
 ax1.set_title(f"Average RMSE Across Forecast Horizons (Parameter: {param})\nDate Range: {start_date_str} to {end_date_str} in comparison with {reference_choice}")
 ax1.set_xlabel('Forecast Horizon')
-ax1.set_ylabel('Average RMSE')
+ax1.set_ylabel(f'Average RMSE ({units})')
 ax1.set_xticks(x + width * 1.5)
 ax1.set_xticklabels(x_labels)
 ax1.legend(title='Models')
@@ -83,5 +84,5 @@ ax2.legend(title='Models')
 plt.tight_layout()
 
 # Save the plot as a PNG file
-plt.savefig(f'RMSE_and_Correlation_Comparison_{param}_{start_date_str}_to_{end_date_str}.png')
+plt.savefig(f'{param}_{reference_choice}_{start_date_str}_{end_date_str}_RMSE_Corr.png')
 plt.show()
