@@ -1,0 +1,106 @@
+import pandas as pd
+import numpy as np
+from scipy.io import loadmat
+import h5py
+import os
+from datetime import datetime, timedelta
+
+# Define function to read data from .mat files
+def readmatfile(filepath, var):
+    """Attempt to read a .mat file using scipy.io for legacy files or h5py for HDF5-based files."""
+    try:
+        # First, try with scipy.io.loadmat for older .mat files
+        mat = loadmat(filepath)
+        data = eval("mat['" + var.replace("/", "'][0,0]['") + "'][:]")
+        print(f"Successfully read {var} from {filepath} using scipy.io.loadmat.")
+        return data
+    except Exception as e:
+        print(f"Failed to read {var} using scipy.io.loadmat. Error: {e}")
+    
+    # Fallback to h5py for HDF5-based .mat files
+    try:
+        f = h5py.File(filepath, 'r')
+        data = f.get(var)[()]
+        data = data.transpose() 
+        f.close()
+        print(f"Successfully read {var} from {filepath} using h5py.")
+        return data
+    except Exception as e:
+        print(f"Failed to read {var} using h5py. Error: {e}")
+        return None
+
+# Directory with station data
+station_dir = '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/station_data'
+station_files = [os.path.join(station_dir, f) for f in os.listdir(station_dir) if f.endswith('.mat')]
+
+# Common date range
+start_date = datetime(2024, 1, 1)
+end_date = datetime(2024, 12, 31)
+dates = pd.date_range(start=start_date, end=end_date, freq='D')
+
+# Define variable mapping based on available keys in the .mat files
+variables = {
+    'Temp': 'TAVG',     # Use average temperature
+    'Wind': 'WIND',     # Wind data
+    'RelHum': None,     # Relative humidity not available; fill with NaN
+    'PRCP': 'PRCP'      # Precipitation
+}
+
+# Temporary storage for each variable's data
+temp_data = {var: {} for var in variables}
+
+# Log failed files
+failed_files = []
+
+# Process each station file
+for station_file in station_files:
+    station_id = 'gauge_' + os.path.basename(station_file)[:-4]
+    print(f"Processing station: {station_id}")
+    for var, mat_var_name in variables.items():
+        if mat_var_name is None:
+            # Handle missing variables (e.g., RelHum)
+            print(f"Variable {var} not available in {station_id}. Filling with NaN.")
+            temp_data[var][station_id] = pd.Series(np.nan, index=dates)
+            continue
+        
+        try:
+            # Read the variable data
+            var_data = readmatfile(station_file, mat_var_name)
+            if var_data is None:
+                print(f"Variable {mat_var_name} not found in {station_id}. Skipping.")
+                temp_data[var][station_id] = pd.Series(np.nan, index=dates)
+                continue
+
+            var_data = var_data.squeeze()
+            # Adjust date alignment
+            if len(var_data) != len(dates):
+                station_dates = pd.date_range(start=start_date, periods=len(var_data), freq='D')
+                var_series = pd.Series(var_data, index=station_dates).reindex(dates)
+            else:
+                var_series = pd.Series(var_data, index=dates)
+
+            temp_data[var][station_id] = var_series
+
+        except Exception as e:
+            print(f"Error processing {var} for {station_id}: {e}")
+            temp_data[var][station_id] = pd.Series(np.nan, index=dates)
+            failed_files.append((station_id, var, str(e)))
+
+# Combine all station data for each variable into a DataFrame
+dataframes = {var: pd.concat(temp_data[var], axis=1) for var in variables}
+
+# Save DataFrames for later use
+output_dir = '/mnt/datawaha/hyex/msn/GWPM/processed_station_data'
+os.makedirs(output_dir, exist_ok=True)
+
+for var, df in dataframes.items():
+    output_path = os.path.join(output_dir, f"{var}_station_data.csv")
+    df.to_csv(output_path)
+    print(f"Saved {var} data to {output_path}")
+
+# Save a log of failed files
+log_file_path = os.path.join(output_dir, "failed_station_files.log")
+with open(log_file_path, "w") as log_file:
+    for station_id, var, error in failed_files:
+        log_file.write(f"Station: {station_id}, Variable: {var}, Error: {error}\n")
+print(f"Log of failed files saved to {log_file_path}")
