@@ -1,15 +1,13 @@
 from datetime import datetime, timedelta
 import os
 import numpy as np
-from datetime import datetime
 
 # Define start and end dates and parameter
 start_date_str = '20240815'  # Start date
 end_date_str = '20241014'    # End date
-param = 'Temp'  # Options: 'Temp', 'P', 'RelHum', 'Wind'
+param = 'Wind'  # Options: 'Temp', 'P', 'RelHum', 'Wind'
 forecast_horizons = list(range(1, 15))  # Forecast horizons from 1 to 15 days
-reference_choice = 'GDAS'  # Options: 'ERA5', 'GDAS'
-
+reference_choice = 'GDAS'  # Options: 'ERA5', 'GDAS', 'Station'
 
 config = {
     'dir_data_processed': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/',
@@ -18,6 +16,7 @@ config = {
     'dir_temp': '/tmp',
     'parameters': ['Temp', 'P', 'RelHum', 'Wind'],  # List of parameters
     'forecast_dates': ['20240816_00'],  # Default date
+    'dir_station_data': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/station_data'
 }
 
 # Data availability constraints
@@ -75,7 +74,7 @@ models = {
     }
 }
 
-# Reference datasets (ERA5 and GDAS)
+# Reference datasets (ERA5, GDAS, MSWEP, and now Station data)
 reference_data = {
     'ERA5': {
         'data_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/ERA5_HRES',
@@ -102,6 +101,14 @@ reference_data = {
         'file_path': '/mnt/datawaha/hyex/beckhe/DATA_PROCESSED/MSWEP_V280/NRT/Daily/2024230.nc',
         'variable_names': {
             'P': 'precipitation'
+        }
+    },
+    'Station': {
+        'data_path': config['dir_station_data'],
+        'variable_names': {
+            'Temp': 'temperature', 
+            'P': 'precipitation'
+            # Assuming these are typical variable names in station data
         }
     }
 }
