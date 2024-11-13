@@ -13,7 +13,7 @@ forecast_horizons = list(range(1, 15))
 # Initialize dictionaries for RMSE and correlation
 rmse_aggregated = {horizon: {model_name: 0 for model_name in models.keys() if param in models[model_name]['predictors']} for horizon in forecast_horizons}
 correlation_aggregated = {horizon: {model_name: [] for model_name in models.keys() if param in models[model_name]['predictors']} for horizon in forecast_horizons}
-forecasts_count = {horizon: 0 for horizon in forecast_horizons}
+forecasts_count = {horizon: {model_name: 0 for model_name in models.keys() if param in models[model_name]['predictors']} for horizon in forecast_horizons}
 
 # Loop over the date range
 current_date = start_date
@@ -36,13 +36,6 @@ while current_date <= end_date:
         reference_path = reference_data[reference_dataset_name]['file_path'].replace("20240816", target_date_str).format(parameter=param).replace("2024230", year_julian_format)
         reference_variable_name = reference_data[reference_dataset_name]['variable_names'][param]
         
-        if reference_dataset_name == 'MSWEP':
-            reference_path = reference_data[reference_dataset_name]['file_path'].replace("{file_name}", year_julian_format)
-        else:
-            reference_path = reference_data[reference_dataset_name]['file_path'].replace("20240816", target_date_str).format(parameter=param).replace("2024230", year_julian_format)
-        
-        reference_variable_name = reference_data[reference_dataset_name]['variable_names'][param]
-        
         try:
             actual_ds = xr.open_dataset(reference_path)
             actual_temp = actual_ds[reference_variable_name].squeeze()
@@ -62,6 +55,7 @@ while current_date <= end_date:
 
                 rmse = np.sqrt(((forecast_temp - actual_temp) ** 2).mean())
                 rmse_aggregated[horizon][model_name] += rmse
+                forecasts_count[horizon][model_name] += 1
 
                 forecast_temp_flat = forecast_temp.values.flatten()
                 actual_temp_flat = actual_temp.values.flatten()
@@ -77,18 +71,23 @@ while current_date <= end_date:
                 print(f"File not found: {model_path} for model '{model_name}' on date {forecast_date_str}.")
                 continue
 
-        forecasts_count[horizon] += 1
     current_date += timedelta(days=1)
 
-# Average correlation values after the loop
+# Average RMSE and correlation values after the loop
 for horizon in forecast_horizons:
+    for model_name in rmse_aggregated[horizon]:
+        if forecasts_count[horizon][model_name] > 0:
+            rmse_aggregated[horizon][model_name] /= forecasts_count[horizon][model_name]
+        else:
+            rmse_aggregated[horizon][model_name] = None
+    
     for model_name in correlation_aggregated[horizon]:
         if correlation_aggregated[horizon][model_name]:
             correlation_aggregated[horizon][model_name] = np.mean(correlation_aggregated[horizon][model_name])
         else:
             correlation_aggregated[horizon][model_name] = None
 
-output_file = f"forecast_analysis_{param}_{start_date_str}_to_{end_date_str}.npz"
+output_file = f"forecast_analysis_{param}_{reference_choice}_{start_date_str}_{end_date_str}.npz"
 np.savez(output_file, rmse_aggregated=rmse_aggregated, 
                       correlation_aggregated=correlation_aggregated, 
                       forecasts_count=forecasts_count)
