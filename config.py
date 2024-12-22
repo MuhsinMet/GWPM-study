@@ -4,7 +4,7 @@ import numpy as np
 
 # Define start and end dates and parameter
 start_date_str = '20240815'  # Start date
-end_date_str = '20241014'    # End date
+end_date_str = '20241130'    # End date
 param = 'Wind'  # Options: 'Temp', 'P', 'RelHum', 'Wind'
 forecast_horizons = list(range(1, 15))  # Forecast horizons from 1 to 15 days
 reference_choice = 'GDAS'  # Options: 'ERA5', 'GDAS', 'Station'
@@ -135,7 +135,7 @@ variables = {
     'Wind': {
         'name': 'Wind Speed',
         'units': 'm/s',
-        'description': 'Wind speed at 10 meters above ground',
+                'description': 'Wind speed at 10 meters above ground',
         'reference_dataset': reference_choice  # Dynamically choose based on user input
     }
 }
