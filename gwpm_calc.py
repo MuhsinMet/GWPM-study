@@ -7,13 +7,30 @@ from scipy.stats import pearsonr
 # User inputs
 start_date = datetime.strptime(start_date_str, "%Y%m%d")
 end_date = datetime.strptime(end_date_str, "%Y%m%d")
-
 forecast_horizons = list(range(1, 15))
 
 # Initialize dictionaries for RMSE and correlation
 rmse_aggregated = {horizon: {model_name: 0 for model_name in models.keys() if param in models[model_name]['predictors']} for horizon in forecast_horizons}
 correlation_aggregated = {horizon: {model_name: [] for model_name in models.keys() if param in models[model_name]['predictors']} for horizon in forecast_horizons}
-forecasts_count = {horizon: {model_name: 0 for model_name in models.keys() if param in models[model_name]['predictors']} for horizon in forecast_horizons}
+forecasts_count = {horizon: 0 for horizon in forecast_horizons}
+
+# Function to calculate climatology
+def calculate_climatology(reference_path, reference_variable_name):
+    """Calculate the annual mean (climatology) from multi-year reference data."""
+    try:
+        # Load the full reference dataset
+        ref_ds = xr.open_mfdataset(reference_path.replace("{year}", "*"), combine='by_coords')
+        ref_var = ref_ds[reference_variable_name]
+        climatology = ref_var.groupby('time.dayofyear').mean('time')
+        return climatology
+    except Exception as e:
+        print(f"Error calculating climatology: {e}")
+        return None
+
+# Calculate climatology from reference data
+reference_path_template = reference_data[reference_choice]['file_path'].replace("20240816", "{year}0101")
+reference_variable_name = reference_data[reference_choice]['variable_names'][param]
+climatology = calculate_climatology(reference_path_template, reference_variable_name)
 
 # Loop over the date range
 current_date = start_date
@@ -32,13 +49,17 @@ while current_date <= end_date:
             for model_name, details in models.items() if param in details['predictors']
         }
 
-        reference_dataset_name = reference_choice
-        reference_path = reference_data[reference_dataset_name]['file_path'].replace("20240816", target_date_str).format(parameter=param).replace("2024230", year_julian_format)
-        reference_variable_name = reference_data[reference_dataset_name]['variable_names'][param]
+        reference_path = reference_data[reference_choice]['file_path'].replace("20240816", target_date_str).format(parameter=param).replace("2024230", year_julian_format)
         
         try:
             actual_ds = xr.open_dataset(reference_path)
             actual_temp = actual_ds[reference_variable_name].squeeze()
+            # Remove the annual trend
+            if climatology is not None:
+                climatology_day = climatology.sel(dayofyear=forecast_target_date.timetuple().tm_yday)
+                actual_temp_anomaly = actual_temp - climatology_day
+            else:
+                actual_temp_anomaly = actual_temp
         except FileNotFoundError:
             print(f"Reference data not found at path: {reference_path}. Skipping this date.")
             continue
@@ -52,13 +73,21 @@ while current_date <= end_date:
 
                 if forecast_temp.dims != actual_temp.dims or forecast_temp.shape != actual_temp.shape:
                     forecast_temp = forecast_temp.interp_like(actual_temp, method="linear")
+                
+                # Remove the trend from forecast data
+                if climatology is not None:
+                    climatology_day = climatology.sel(dayofyear=forecast_target_date.timetuple().tm_yday)
+                    forecast_temp_anomaly = forecast_temp - climatology_day
+                else:
+                    forecast_temp_anomaly = forecast_temp
 
-                rmse = np.sqrt(((forecast_temp - actual_temp) ** 2).mean())
+                # RMSE calculation
+                rmse = np.sqrt(((forecast_temp_anomaly - actual_temp_anomaly) ** 2).mean())
                 rmse_aggregated[horizon][model_name] += rmse
-                forecasts_count[horizon][model_name] += 1
 
-                forecast_temp_flat = forecast_temp.values.flatten()
-                actual_temp_flat = actual_temp.values.flatten()
+                # Flatten and correlate
+                forecast_temp_flat = forecast_temp_anomaly.values.flatten()
+                actual_temp_flat = actual_temp_anomaly.values.flatten()
                 valid_indices = np.isfinite(forecast_temp_flat) & np.isfinite(actual_temp_flat)
                 forecast_temp_flat = forecast_temp_flat[valid_indices]
                 actual_temp_flat = actual_temp_flat[valid_indices]
@@ -71,16 +100,11 @@ while current_date <= end_date:
                 print(f"File not found: {model_path} for model '{model_name}' on date {forecast_date_str}.")
                 continue
 
+        forecasts_count[horizon] += 1
     current_date += timedelta(days=1)
 
-# Average RMSE and correlation values after the loop
+# Average correlation values after the loop
 for horizon in forecast_horizons:
-    for model_name in rmse_aggregated[horizon]:
-        if forecasts_count[horizon][model_name] > 0:
-            rmse_aggregated[horizon][model_name] /= forecasts_count[horizon][model_name]
-        else:
-            rmse_aggregated[horizon][model_name] = None
-    
     for model_name in correlation_aggregated[horizon]:
         if correlation_aggregated[horizon][model_name]:
             correlation_aggregated[horizon][model_name] = np.mean(correlation_aggregated[horizon][model_name])
