@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 from config import models, start_date_str, end_date_str, param, reference_choice, variables  # Import variables explicitly
 import subprocess
 
+# Define plot directory
+plot_dir = '/mnt/datawaha/hyex/msn/GWPM/plots'
+os.makedirs(plot_dir, exist_ok=True)  # Ensure the directory exists
+
 # Load the saved data
 data_file = f"forecast_analysis_{param}_{reference_choice}_{start_date_str}_{end_date_str}.npz"
 
@@ -55,13 +59,12 @@ for idx, model_name in enumerate([m for m in models.keys() if param in models[m]
             ax2.text(x[i] + idx * width, corr, f'{corr:.3f}', ha='center', va='bottom', rotation=90)
 
 # Determine the min and max correlation values for y-axis limits
+y_min, y_max = 0, 1
 if corr_values:
     min_corr = min(corr_values)
     max_corr = max(corr_values)
-    y_min = max(0, min_corr - 0.01)  # Slightly below the minimum value but not less than 0
-    y_max = min(1, max_corr + 0.02)  # Slightly above the maximum value but not more than 1
-else:
-    y_min, y_max = 0, 1  # Default range if no valid values
+    y_min = max(0, min_corr - 0.01)
+    y_max = min(1, max_corr + 0.02)
 
 # Customize RMSE plot
 units = variables[param]['units']  # Retrieve units for the parameter
@@ -84,5 +87,13 @@ ax2.legend(title='Models')
 plt.tight_layout()
 
 # Save the plot as a PNG file
-plt.savefig(f'{param}_{reference_choice}_{start_date_str}_{end_date_str}_RMSE_Corr.png')
+plot_file = os.path.join(plot_dir, f'{param}_{reference_choice}_{start_date_str}_{end_date_str}_RMSE_Corr.png')
+plt.savefig(plot_file)
 plt.show()
+
+# Delete the calculation results file
+try:
+    os.remove(data_file)
+    print(f"Deleted calculation results file: {data_file}")
+except OSError as e:
+    print(f"Error deleting file {data_file}: {e}")
